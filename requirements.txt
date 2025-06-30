@@ -7,7 +7,7 @@ setuptools==80.9.0
 requests==2.32.4
 responses==0.25.7
 semver==3.0.4
-python-hosts==1.0.7
+python-hosts==1.1.2
 PyYAML==6.0.2
 types-PyYAML==6.0.12.20250516
 pyobjc-core==11.1; sys_platform == 'darwin'
