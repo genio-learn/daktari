@@ -46,7 +46,7 @@ class CloudSqlProxyInstalled(Check):
     def check(self) -> CheckResult:
         installed_version = get_simple_cli_version("cloud-sql-proxy")
         return self.validate_semver_expression(
-            "cloud_sql_proxy", installed_version, self.required_version, self.recommended_version
+            "cloud-sql-proxy", installed_version, self.required_version, self.recommended_version
         )
 
 
