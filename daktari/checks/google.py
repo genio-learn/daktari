@@ -40,13 +40,13 @@ class CloudSqlProxyInstalled(Check):
         self.recommended_version = recommended_version
 
     suggestions = {
-        OS.GENERIC: "Install Cloud SQL Proxy: <cmd>gcloud components install cloud_sql_proxy</cmd>",
+        OS.GENERIC: "Install Cloud SQL Proxy: <cmd>gcloud components install cloud-sql-proxy</cmd>",
     }
 
     def check(self) -> CheckResult:
-        installed_version = get_simple_cli_version("cloud_sql_proxy")
+        installed_version = get_simple_cli_version("cloud-sql-proxy")
         return self.validate_semver_expression(
-            "cloud_sql_proxy", installed_version, self.required_version, self.recommended_version
+            "cloud-sql-proxy", installed_version, self.required_version, self.recommended_version
         )
 
 
