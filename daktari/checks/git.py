@@ -158,10 +158,8 @@ class GitCommitSigningSetUp(Check):
     name = "git.commitSigningSetUp"
 
     suggestions = {
-        OS.OS_X: "Follow instructions to set up commit signing: "
-        "https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e#file-2-using-gpg-md",
-        OS.UBUNTU: "Follow instructions to set up commit signing: "
-        "https://brain2life.hashnode.dev/how-to-sign-your-git-commits-in-ubuntu-2004-and-why-you-need-it",
+        OS.GENERIC: "Follow instructions to set up commit signing with 1Password: "
+        "https://developer.1password.com/docs/ssh/git-commit-signing/",
     }
 
     def check(self) -> CheckResult:
