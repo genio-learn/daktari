@@ -194,3 +194,22 @@ class GitCommitSigningFormat(Check):
             f"gpg.format is {self.required_format}",
             f"gpg.format is not {self.required_format}: {format_setting}",
         )
+
+
+class GitUserNameAndEmail(Check):
+    name = "gitUserNameAndEmail.configured"
+    depends_on = [GitInstalled]
+    pass_fail_message = "git name and email are <not/> set"
+
+    suggestions = {
+        OS.GENERIC: """
+            Config git to use your name and email for commits. These must match your GitHub account.
+            <cmd>git config --global user.name "Your Name"</cmd>
+            <cmd>git config --global user.email "your.email@genio.co"</cmd>
+            """,
+    }
+
+    def check(self):
+        user_name = get_stdout("git config user.name")
+        user_email = get_stdout("git config user.email")
+        return self.verify(None not in (user_name, user_email), self.pass_fail_message)
