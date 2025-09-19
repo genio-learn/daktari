@@ -158,10 +158,8 @@ class GitCommitSigningSetUp(Check):
     name = "git.commitSigningSetUp"
 
     suggestions = {
-        OS.OS_X: "Follow instructions to set up commit signing: "
-        "https://gist.github.com/troyfontaine/18c9146295168ee9ca2b30c00bd1b41e#file-2-using-gpg-md",
-        OS.UBUNTU: "Follow instructions to set up commit signing: "
-        "https://brain2life.hashnode.dev/how-to-sign-your-git-commits-in-ubuntu-2004-and-why-you-need-it",
+        OS.GENERIC: "Follow instructions to set up commit signing with 1Password: "
+        "https://developer.1password.com/docs/ssh/git-commit-signing/",
     }
 
     def check(self) -> CheckResult:
@@ -196,3 +194,22 @@ class GitCommitSigningFormat(Check):
             f"gpg.format is {self.required_format}",
             f"gpg.format is not {self.required_format}: {format_setting}",
         )
+
+
+class GitUserNameAndEmailConfigured(Check):
+    name = "gitUserNameAndEmail.configured"
+    depends_on = [GitInstalled]
+    pass_fail_message = "git name and email are <not/> set"
+
+    suggestions = {
+        OS.GENERIC: """
+            Configure git to use your name and email for commits. These should match your GitHub account.
+            <cmd>git config --global user.name "Your Name"</cmd>
+            <cmd>git config --global user.email "your.email@genio.co"</cmd>
+            """,
+    }
+
+    def check(self):
+        user_name = get_stdout("git config user.name")
+        user_email = get_stdout("git config user.email")
+        return self.verify(None not in (user_name, user_email), self.pass_fail_message)
