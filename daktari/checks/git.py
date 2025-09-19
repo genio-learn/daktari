@@ -196,14 +196,14 @@ class GitCommitSigningFormat(Check):
         )
 
 
-class GitUserNameAndEmail(Check):
+class GitUserNameAndEmailConfigured(Check):
     name = "gitUserNameAndEmail.configured"
     depends_on = [GitInstalled]
     pass_fail_message = "git name and email are <not/> set"
 
     suggestions = {
         OS.GENERIC: """
-            Config git to use your name and email for commits. These must match your GitHub account.
+            Configure git to use your name and email for commits. These should match your GitHub account.
             <cmd>git config --global user.name "Your Name"</cmd>
             <cmd>git config --global user.email "your.email@genio.co"</cmd>
             """,
