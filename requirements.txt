@@ -14,7 +14,7 @@ pyobjc-core==11.1; sys_platform == 'darwin'
 pyobjc-framework-Cocoa==11.1; sys_platform == 'darwin'
 requests-unixsocket==0.4.1
 dpath==2.2.0
-pyOpenSSL==25.2.0
+pyOpenSSL==25.3.0
 types-pyOpenSSL==24.1.0.20240722
 pyclip==0.7.0
 urllib3==2.5.0
