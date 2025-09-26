@@ -8,6 +8,8 @@ updates:
     labels:
       - 'dev-review-required'
       - 'dependencies'
+    cooldown:
+      default-days: 7
   - package-ecosystem: 'pip'
     directory: '/'
     schedule:
@@ -15,3 +17,5 @@ updates:
     labels:
       - 'dev-review-required'
       - 'dependencies'
+    cooldown:
+      default-days: 7
