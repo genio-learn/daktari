@@ -192,8 +192,18 @@ class HostAliasesConfigured(Check):
     def __init__(self, required_aliases: Dict[str, str]):
         self.required_aliases = required_aliases
         hosts_path = Hosts.determine_hosts_path()
-        entries_text = "\n".join([f"{addr} {name}" for (name, addr) in self.required_aliases.items()])
-        self.suggestions = {OS.GENERIC: f"Add the following entries to {hosts_path}:\n\n{entries_text}"}
+
+        aliases_by_addr: Dict[str, list[str]] = {}
+
+        for name, addr in self.required_aliases.items():
+            aliases_by_addr.setdefault(addr, []).append(name)
+
+        entries_text = "\n".join([f"{addr} {' '.join(names)}" for addr, names in aliases_by_addr.items()])
+
+        self.suggestions = {
+            OS.GENERIC: f"Add the following entries to {hosts_path}:\n\n{entries_text}\n\n"
+            f"Note: If you already have entries for these IP addresses, please merge these aliases onto the existing lines."
+        }
 
     def check(self) -> CheckResult:
         hosts = Hosts()
