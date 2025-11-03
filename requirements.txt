@@ -10,7 +10,7 @@ semver==3.0.4
 python-hosts==1.1.2
 PyYAML==6.0.3
 types-PyYAML==6.0.12.20250915
-pyobjc-core==11.1; sys_platform == 'darwin'
+pyobjc-core==12.0; sys_platform == 'darwin'
 pyobjc-framework-Cocoa==11.1; sys_platform == 'darwin'
 requests-unixsocket==0.4.1
 dpath==2.2.0
