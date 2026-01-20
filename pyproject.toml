@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "daktari"
-version = "0.0.300"
+version = "0.0.301"
 description = "Assist in setting up and maintaining developer environments"
 readme = "README.md"
 license = { file = "LICENSE.txt" }
