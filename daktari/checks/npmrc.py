@@ -9,12 +9,14 @@ from daktari.command_utils import can_run_command
 from daktari.file_utils import file_exists
 from daktari.os import OS
 
+PLACEHOLDER_TOKEN = "UPDATE_WITH_TOKEN"
+
 
 @dataclass
 class NpmrcScope:
     name: str
     registry: str
-    requireAuthToken: bool = False
+    require_auth_token: bool = False
 
 
 def get_npmrc_path() -> str:
@@ -42,8 +44,7 @@ def get_registry_host(registry_url: str) -> str:
 def npmrc_contains_scope_registry(lines: List[str], scope: NpmrcScope) -> bool:
     expected_line = f"@{scope.name}:registry={scope.registry}"
     for line in lines:
-        stripped = line.strip()
-        if stripped == expected_line or stripped.startswith(expected_line + "\n"):
+        if line.strip() == expected_line:
             return True
     return False
 
@@ -55,7 +56,7 @@ def npmrc_contains_auth_token(lines: List[str], registry_url: str) -> bool:
         stripped = line.strip()
         if stripped.startswith(auth_token_prefix):
             token_value = stripped[len(auth_token_prefix) :]
-            if token_value and token_value != "UPDATE_WITH_TOKEN":
+            if token_value and token_value != PLACEHOLDER_TOKEN:
                 return True
     return False
 
@@ -63,41 +64,30 @@ def npmrc_contains_auth_token(lines: List[str], registry_url: str) -> bool:
 def npmrc_scope_is_configured(lines: List[str], scope: NpmrcScope) -> bool:
     if not npmrc_contains_scope_registry(lines, scope):
         return False
-    if scope.requireAuthToken and not npmrc_contains_auth_token(lines, scope.registry):
+    if scope.require_auth_token and not npmrc_contains_auth_token(lines, scope.registry):
         return False
     return True
 
 
 def get_npmrc_suggestion(scope: NpmrcScope) -> str:
     lines = [f"@{scope.name}:registry={scope.registry}"]
-    if scope.requireAuthToken:
+    if scope.require_auth_token:
         host = get_registry_host(scope.registry)
-        lines.append(f"//{host}/:_authToken=UPDATE_WITH_TOKEN")
+        lines.append(f"//{host}/:_authToken={PLACEHOLDER_TOKEN}")
     return "\n".join(lines)
-
-
-def get_npmrc_token_for_registry(registry_url: str) -> Optional[str]:
-    lines = get_npmrc_contents()
-    host = get_registry_host(registry_url)
-    auth_token_prefix = f"//{host}/:_authToken="
-    for line in lines:
-        stripped = line.strip()
-        if stripped.startswith(auth_token_prefix):
-            return stripped[len(auth_token_prefix) :]
-    return None
 
 
 class NpmrcScopeConfigured(Check):
     name = "npmrc.scopeConfigured"
 
-    def __init__(self, scope: NpmrcScope, tokenInstructions: Optional[str] = None):
+    def __init__(self, scope: NpmrcScope, token_instructions: Optional[str] = None):
         self.scope = scope
         self.npmrc_suggestion = get_npmrc_suggestion(scope)
-        tokenInstructionString = f"\n\n{tokenInstructions}" if tokenInstructions else ""
+        token_instruction_string = f"\n\n{token_instructions}" if token_instructions else ""
         self.suggestions = {
             OS.GENERIC: f"""Add the lines below to ~/.npmrc:
 
-{self.npmrc_suggestion}{tokenInstructionString}"""
+{self.npmrc_suggestion}{token_instruction_string}"""
         }
 
     def check(self) -> CheckResult:
