@@ -72,14 +72,14 @@ class TestNpmrcHelpers(unittest.TestCase):
         self.assertFalse(npmrc_contains_auth_token(lines, TEST_REGISTRY))
 
     def test_npmrc_scope_is_configured_without_auth(self):
-        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, requireAuthToken=False)
+        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, require_auth_token=False)
         lines = [
             f"@{TEST_SCOPE_NAME}:registry={TEST_REGISTRY}\n",
         ]
         self.assertTrue(npmrc_scope_is_configured(lines, scope))
 
     def test_npmrc_scope_is_configured_with_auth_present(self):
-        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, requireAuthToken=True)
+        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, require_auth_token=True)
         lines = [
             f"@{TEST_SCOPE_NAME}:registry={TEST_REGISTRY}\n",
             f"//{TEST_REGISTRY_HOST}/:_authToken={TEST_AUTH_TOKEN}\n",
@@ -87,7 +87,7 @@ class TestNpmrcHelpers(unittest.TestCase):
         self.assertTrue(npmrc_scope_is_configured(lines, scope))
 
     def test_npmrc_scope_is_configured_with_auth_missing(self):
-        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, requireAuthToken=True)
+        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, require_auth_token=True)
         lines = [
             f"@{TEST_SCOPE_NAME}:registry={TEST_REGISTRY}\n",
         ]
@@ -101,12 +101,12 @@ class TestNpmrcHelpers(unittest.TestCase):
         self.assertFalse(npmrc_scope_is_configured(lines, scope))
 
     def test_get_npmrc_suggestion_without_auth(self):
-        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, requireAuthToken=False)
+        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, require_auth_token=False)
         suggestion = get_npmrc_suggestion(scope)
         self.assertEqual(suggestion, f"@{TEST_SCOPE_NAME}:registry={TEST_REGISTRY}")
 
     def test_get_npmrc_suggestion_with_auth(self):
-        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, requireAuthToken=True)
+        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, require_auth_token=True)
         suggestion = get_npmrc_suggestion(scope)
         expected = f"@{TEST_SCOPE_NAME}:registry={TEST_REGISTRY}\n//{TEST_REGISTRY_HOST}/:_authToken=UPDATE_WITH_TOKEN"
         self.assertEqual(suggestion, expected)
@@ -119,7 +119,7 @@ class TestNpmrcScopeConfigured(unittest.TestCase):
             f"@{TEST_SCOPE_NAME}:registry={TEST_REGISTRY}\n",
             f"//{TEST_REGISTRY_HOST}/:_authToken={TEST_AUTH_TOKEN}\n",
         ]
-        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, requireAuthToken=True)
+        scope = NpmrcScope(name=TEST_SCOPE_NAME, registry=TEST_REGISTRY, require_auth_token=True)
         result = NpmrcScopeConfigured(scope).check()
         self.assertEqual(result.status, CheckStatus.PASS)
 
