@@ -3,7 +3,7 @@ distro==1.9.0
 pyfiglet==1.0.4
 importlib_resources==6.5.2
 packaging==26.0
-setuptools==80.10.2
+setuptools==82.0.0
 requests==2.32.5
 responses==0.25.8
 semver==3.0.4
