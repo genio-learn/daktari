@@ -8,9 +8,9 @@ from unittest.mock import patch
 from colors import red, yellow
 from packaging import version
 from packaging.version import Version
+from semver import VersionInfo
 
 from daktari import __version__
-from daktari.version_utils import sanitise_version_string
 from daktari.checks.intellij_idea import IntelliJIdeaInstalled, IntelliJProjectImported
 from daktari.checks.misc import EnvVarSet
 from daktari.config import (
@@ -23,6 +23,7 @@ from daktari.config import (
     LOCAL_CONFIG_TEMPLATE,
 )
 from daktari.resource_utils import get_resource
+from daktari.version_utils import try_parse_semver
 
 config_path = Path("./.daktari.config")
 current_version: Version = Version(__version__)
@@ -137,10 +138,11 @@ class TestConfig(unittest.TestCase):
             actual_contents = local_config_file.read()
             self.assertEqual(expected_contents, actual_contents)
 
-    def test_version_number_sanitised(self):
-        self.assertEqual(sanitise_version_string("9.22"), "9.22.0")
-        self.assertEqual(sanitise_version_string("1.2.3"), "1.2.3")
-        self.assertEqual(sanitise_version_string("1.2.3.4"), "1.2.3")
+    def test_try_parse_semver(self):
+        self.assertEqual(try_parse_semver(None), None)
+        self.assertEqual(try_parse_semver("9.22"), VersionInfo(major=9, minor=22, patch=0))
+        self.assertEqual(try_parse_semver("1.2.3"), VersionInfo(major=1, minor=2, patch=3))
+        self.assertEqual(try_parse_semver("1.2.3.4"), VersionInfo(major=1, minor=2, patch=3))
 
     def test_local_config_template(self):
         template_text = get_resource(LOCAL_CONFIG_TEMPLATE)
