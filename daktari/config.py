@@ -12,7 +12,7 @@ from yaml import YAMLError
 
 from daktari import __version__
 from daktari.check import Check
-from daktari.check_utils import get_all_dependent_check_names
+from daktari.check_utils import filter_out_checks_by_name
 from daktari.resource_utils import get_resource
 from daktari.result_printer import print_suggestion_text
 from daktari.command_utils import CommandErrorException, run_command
@@ -78,14 +78,10 @@ def write_local_config_template():
 
 
 def remove_ignored_checks(config: Config, ignored_check_names: List[str]) -> Config:
-    ignored_checks = [check for check in config.checks if check_should_be_ignored(check, ignored_check_names)]
-    remaining_checks = [check for check in config.checks if check not in ignored_checks]
+    remaining_checks = filter_out_checks_by_name(config.checks, set(ignored_check_names))
+    remaining_check_names = {check.name for check in remaining_checks}
+    ignored_checks = [check for check in config.checks if check.name not in remaining_check_names]
     return replace(config, checks=remaining_checks, ignored_checks=ignored_checks)
-
-
-def check_should_be_ignored(check: Check, ignored_check_names: List[str]) -> bool:
-    dependents = get_all_dependent_check_names(check)
-    return check.name in ignored_check_names or any([dependent in ignored_check_names for dependent in dependents])
 
 
 def parse_raw_config(config_path: Path, raw_config: str) -> Optional[Config]:
