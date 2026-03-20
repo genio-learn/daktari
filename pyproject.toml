@@ -11,7 +11,7 @@ license = { file = "LICENSE.txt" }
 authors = [
     { name = "Matt Russell", email = "matthew.russell@sonocent.com" }
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dynamic = ["dependencies"]
 
 [project.urls]
