@@ -22,13 +22,13 @@ def get_simple_cli_version(binary_name: str) -> Optional[VersionInfo]:
 
 def try_parse_semver(version_str: Optional[str]) -> Optional[VersionInfo]:
     try:
-        return None if version_str is None else VersionInfo.parse(version_str)
+        return None if version_str is None else VersionInfo.parse(_sanitise_version_string(version_str))
     except ValueError:
         return None
 
 
 # Coerce version strings into a standard semver format: major.minor.patch
-def sanitise_version_string(version_str: str) -> str:
+def _sanitise_version_string(version_str: str) -> str:
     parts = version_str.split(".")
     if len(parts) == 2:
         return version_str + ".0"

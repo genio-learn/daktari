@@ -14,7 +14,7 @@ from daktari.checks.files import FilesExist
 from daktari.checks.xml import XmlFileXPathCheck
 from daktari.command_utils import get_stdout
 from daktari.os import OS, detect_os
-from daktari.version_utils import try_parse_semver, sanitise_version_string
+from daktari.version_utils import try_parse_semver
 
 BUNDLE_ID_INTELLIJ_IDEA = "com.jetbrains.intellij"
 BUNDLE_ID_INTELLIJ_IDEA_CE = "com.jetbrains.intellij.ce"
@@ -44,8 +44,6 @@ def get_intellij_idea_version_mac() -> Optional[VersionInfo]:
         from Foundation import NSBundle
 
         version_str = NSBundle.bundleWithURL_(intellij_url).objectForInfoDictionaryKey_("CFBundleShortVersionString")
-
-        version_str = sanitise_version_string(version_str)
         version = try_parse_semver(version_str)
 
         logging.debug(f"IntelliJ IDEA version (via NSBundle): {version} ({version_str})")
@@ -69,7 +67,6 @@ def get_intellij_idea_version_snap() -> Optional[VersionInfo]:
     logging.debug(f"raw snapd version: {version_str}")
     if not isinstance(version_str, str):
         return None
-    version_str = sanitise_version_string(version_str)
 
     version = try_parse_semver(version_str)
     logging.debug(f"IntelliJ IDEA version (via snapd): {version}")
