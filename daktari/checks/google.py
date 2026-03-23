@@ -69,8 +69,7 @@ class DockerGoogleCloudAuthConfigured(Check):
 
     def __init__(self, cloud_project, region, registry):
         self.registry = registry
-        self.suggestions = {
-            OS.GENERIC: f"""
+        self.suggestions = {OS.GENERIC: f"""
                 Setup gcloud authentication and docker credential helper for gcloud.
                 The following commands will open your browser and ask you to login and approve.
                 Run:
@@ -80,8 +79,7 @@ class DockerGoogleCloudAuthConfigured(Check):
                 <cmd>gcloud config set --quiet compute/zone {region}</cmd>
                 <cmd>gcloud auth application-default login</cmd>
                 <cmd>gcloud auth configure-docker {registry}</cmd>
-                """
-        }
+                """}
 
     def check(self) -> CheckResult:
         # Logged in with gcloud

@@ -84,11 +84,9 @@ class NpmrcScopeConfigured(Check):
         self.scope = scope
         self.npmrc_suggestion = get_npmrc_suggestion(scope)
         token_instruction_string = f"\n\n{token_instructions}" if token_instructions else ""
-        self.suggestions = {
-            OS.GENERIC: f"""Add the lines below to ~/.npmrc:
+        self.suggestions = {OS.GENERIC: f"""Add the lines below to ~/.npmrc:
 
-{self.npmrc_suggestion}{token_instruction_string}"""
-        }
+{self.npmrc_suggestion}{token_instruction_string}"""}
 
     def check(self) -> CheckResult:
         try:

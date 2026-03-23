@@ -8,7 +8,6 @@ from colors import green, red, underline, yellow
 from daktari.check import CheckResult, CheckStatus
 from daktari.os import OS, detect_os
 
-
 clear_line_prefix = "\33[2K\r"
 
 

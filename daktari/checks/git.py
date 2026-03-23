@@ -42,12 +42,10 @@ class GitLfsSetUpForUser(Check):
     name = "git.lfs.setUpForUser"
     depends_on = [GitLfsInstalled]
 
-    suggestions = {
-        OS.GENERIC: """
+    suggestions = {OS.GENERIC: """
             Set up Git LFS for your user account:
             <cmd>git lfs install</cmd>
-            """
-    }
+            """}
 
     def check(self) -> CheckResult:
         output = get_stdout("git lfs env")
@@ -59,12 +57,10 @@ class GitLfsFilesDownloaded(Check):
     name = "git.lfs.filesDownloaded"
     depends_on = [GitLfsSetUpForUser]
 
-    suggestions = {
-        OS.GENERIC: """
+    suggestions = {OS.GENERIC: """
             Download all Git LFS files and update working copy with the downloaded content:
             <cmd>git lfs pull</cmd>
-            """
-    }
+            """}
 
     def check(self) -> CheckResult:
         output = get_stdout("git lfs ls-files") or ""
