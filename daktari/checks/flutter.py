@@ -8,7 +8,6 @@ from daktari.command_utils import get_stdout
 from daktari.os import OS
 from daktari.version_utils import try_parse_semver
 
-
 flutter_version_pattern = re.compile(r"Flutter\s+([\d\.]+)")
 
 

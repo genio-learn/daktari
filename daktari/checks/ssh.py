@@ -13,16 +13,14 @@ def is_ssh_configured_to_use_macos_keychain(ssh_config_path: str = "~/.ssh/confi
 class SSHConfigSetup(Check):
     name = "ssh.config.setup"
 
-    suggestions = {
-        OS.OS_X: """
+    suggestions = {OS.OS_X: """
             Add "IgnoreUnknown UseKeychain" and "UseKeychain yes" to ~/.ssh/config.
             E.g:
                 Host *
                     IgnoreUnknown UseKeychain
                     UseKeychain yes
                     IdentityFile ~/.ssh/id_rsa
-            """
-    }
+            """}
 
     def check(self) -> CheckResult:
         if detect_os() != OS.OS_X:

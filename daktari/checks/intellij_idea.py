@@ -154,11 +154,9 @@ class IntelliJProjectImported(FilesExist):
     file_paths = [".idea/workspace.xml"]
     pass_fail_message = "Project <not/> imported into IntelliJ"
     depends_on = [IntelliJIdeaInstalled]
-    suggestions = {
-        OS.GENERIC: """
+    suggestions = {OS.GENERIC: """
             From the IntelliJ start screen, click 'Open or Import' and choose the repository root directory
-            """
-    }
+            """}
 
 
 class IntelliJNodePackageManagerConfigured(XmlFileXPathCheck):
@@ -171,12 +169,10 @@ class IntelliJNodePackageManagerConfigured(XmlFileXPathCheck):
         self.package_manager_path = package_manager_path
         self.pass_fail_message = f"IntelliJ package manager has <not/> been set to {package_manager_path}"
 
-        self.suggestions = {
-            OS.GENERIC: f"""
+        self.suggestions = {OS.GENERIC: f"""
                 Follow the steps to configure {self.package_manager_path} as your package manager:
                 https://www.jetbrains.com/help/idea/installing-and-removing-external-software-using-node-package-manager.html#ws_npm_yarn_configure_package_manager
-                """
-        }
+                """}
 
     def validate_query_result(self, result):
         key_json = None if result is None else json.loads(result.text)
@@ -197,12 +193,10 @@ class IntelliJTypescriptCompilerPathConfigured(XmlFileXPathCheck):
         resolved_path = typescript_compiler_path.replace("$PROJECT_DIR$", os.getcwd())
         self.pass_fail_message = f"IntelliJ typescript compiler path has <not/> been set to {resolved_path}"
 
-        self.suggestions = {
-            OS.GENERIC: f"""
+        self.suggestions = {OS.GENERIC: f"""
                 Follow the steps to set {resolved_path} as your typescript compiler path:
                 https://www.jetbrains.com/help/idea/typescript-support.html#ws_ts_use_ts_service_checkbox
-                """
-        }
+                """}
 
     def validate_query_result(self, result):
         if result is None:
@@ -222,12 +216,10 @@ class IntelliJProjectSdkJavaVersion(XmlFileXPathCheck):
     def __init__(self, jdk_version: int):
         self.jdk_version = jdk_version
 
-        self.suggestions = {
-            OS.GENERIC: f"""
+        self.suggestions = {OS.GENERIC: f"""
                 Follow the steps to configure JDK {jdk_version}:
                 https://www.jetbrains.com/help/idea/sdk.html#change-project-sdk
-                """
-        }
+                """}
 
     def validate_query_result(self, result: Optional[Element]):
         if result is None:

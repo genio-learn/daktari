@@ -11,7 +11,7 @@ class OS:
 
 
 def detect_os() -> str:
-    (id_name, _, _) = distro.linux_distribution()
+    id_name, _, _ = distro.linux_distribution()
     if id_name == "Darwin":
         return OS.OS_X
     elif id_name == "Ubuntu":

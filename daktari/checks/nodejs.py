@@ -68,14 +68,12 @@ class NvmInstalled(Check):
 class NodeJsVersionMatchesNvmrc(Check):
     name = "nodejs.nvmrc.version"
 
-    suggestions = {
-        OS.GENERIC: """
+    suggestions = {OS.GENERIC: """
             Run: <cmd>nvm install</cmd> (automatically picks up the right version from .nvmrc)
             Run: <cmd>nvm use</cmd>
             Run: <cmd>nvm alias default <version></cmd> to set the default node version to the newly
             installed one
-            """
-    }
+            """}
 
     def check(self) -> CheckResult:
         nvmrc_version = get_nvmrc_version()

@@ -151,14 +151,12 @@ def android_hosts_mapping_present(serial, host_alias) -> bool:
 
 class MobileIosPrerequisitesReady(Check):
     name = "mobile.ios.prerequisites"
-    suggestions = {
-        OS.OS_X: """
+    suggestions = {OS.OS_X: """
             Common fixes:
             - Install Xcode and launch it at least once to finish setup
             - Install an iOS simulator runtime in Xcode Settings > Platforms
             - Install mkcert and run <cmd>mkcert -install</cmd>
-            """
-    }
+            """}
 
     def check(self) -> CheckResult:
         try:
@@ -173,8 +171,7 @@ class MobileIosPrerequisitesReady(Check):
 
 class MobileAndroidPrerequisitesReady(Check):
     name = "mobile.android.prerequisites"
-    suggestions = {
-        OS.GENERIC: """
+    suggestions = {OS.GENERIC: """
             Common fixes:
             - In Android Studio, open SDK Manager > SDK Tools and install Android SDK Platform-Tools (adb)
               and Android Emulator
@@ -182,8 +179,7 @@ class MobileAndroidPrerequisitesReady(Check):
             - Add Android SDK paths to your shell profile PATH (for example
               .../Android/sdk/platform-tools and .../Android/sdk/emulator)
             - Install mkcert and run <cmd>mkcert -install</cmd>
-            """
-    }
+            """}
 
     def check(self) -> CheckResult:
         try:
@@ -201,12 +197,10 @@ class MobileIosBootstrapReady(Check):
     depends_on = [MobileIosPrerequisitesReady]
 
     def __init__(self, bootstrap_command: str = "task mobile:bootstrap:ios"):
-        self.suggestions = {
-            OS.OS_X: f"""
+        self.suggestions = {OS.OS_X: f"""
             Complete iOS simulator setup:
             <cmd>{bootstrap_command}</cmd>
-            """
-        }
+            """}
 
     def check(self) -> CheckResult:
         try:
@@ -257,12 +251,10 @@ class MobileAndroidBootstrapReady(Check):
         self.android_certificate_path = android_certificate_path
         self.host_alias = host_alias
         self.emulator_log_path = emulator_log_path
-        self.suggestions = {
-            OS.GENERIC: f"""
+        self.suggestions = {OS.GENERIC: f"""
             Complete Android emulator setup for all available AVDs:
             <cmd>{bootstrap_command}</cmd>
-            """
-        }
+            """}
 
     def check(self) -> CheckResult:
         try:

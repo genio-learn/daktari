@@ -81,11 +81,9 @@ class YarnNpmScopeConfigured(Check):
         self.scope = scope
         self.yarnrc_suggestion = get_yarnrc_suggestion(scope)
         tokenInstructionString = f"\n\n{tokenInstructions}" if tokenInstructions else ""
-        self.suggestions = {
-            OS.GENERIC: f"""Add the lines below to ~/.yarnrc.yml:
+        self.suggestions = {OS.GENERIC: f"""Add the lines below to ~/.yarnrc.yml:
 
-{self.yarnrc_suggestion}{tokenInstructionString}"""
-        }
+{self.yarnrc_suggestion}{tokenInstructionString}"""}
 
     def check(self) -> CheckResult:
         try:
