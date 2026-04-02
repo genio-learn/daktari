@@ -5,6 +5,7 @@ import ssl
 import subprocess
 import time
 from pathlib import Path
+from typing import Optional
 
 from daktari.check import Check, CheckResult
 from daktari.command_utils import CommandErrorException, CommandNotFoundException, run_command
@@ -19,6 +20,10 @@ def command_failure_summary(error) -> str:
             if cleaned_line:
                 return cleaned_line
     return str(error)
+
+
+def command_output(result) -> str:
+    return f"{result.stderr}\n{result.stdout}".strip()
 
 
 def get_available_ios_simulators():
@@ -107,6 +112,37 @@ def wait_for_android_device_boot(serial, timeout_seconds=240):
             pass
 
         time.sleep(2)
+
+
+def get_android_system_property(serial, property_name) -> str:
+    try:
+        result = run_command(["adb", "-s", serial, "shell", "getprop", property_name])
+        return result.stdout.strip().replace("\r", "")
+    except (CommandErrorException, CommandNotFoundException):
+        return ""
+
+
+def get_android_bootstrap_skip_reason(serial, avd_name, adb_root_output) -> Optional[str]:
+    build_type = get_android_system_property(serial, "ro.build.type")
+    build_tags = get_android_system_property(serial, "ro.build.tags")
+    debuggable = get_android_system_property(serial, "ro.debuggable")
+    lower_root_output = adb_root_output.lower()
+
+    if "adbd cannot run as root in production builds" in lower_root_output:
+        return (
+            f"{avd_name} is running a non-rootable production image "
+            f"(ro.build.type={build_type or 'unknown'}, ro.build.tags={build_tags or 'unknown'}, "
+            f"ro.debuggable={debuggable or 'unknown'}). Use a Google APIs or AOSP userdebug image instead."
+        )
+
+    if debuggable == "0" or build_type == "user" or build_tags == "release-keys":
+        return (
+            f"{avd_name} is running a non-rootable production image "
+            f"(ro.build.type={build_type or 'unknown'}, ro.build.tags={build_tags or 'unknown'}, "
+            f"ro.debuggable={debuggable or 'unknown'}). Use a Google APIs or AOSP userdebug image instead."
+        )
+
+    return None
 
 
 def start_android_avd_for_check(avd_name, emulator_log_path="/tmp/daktari-mobile-emulator.log"):
@@ -267,6 +303,7 @@ class MobileAndroidBootstrapReady(Check):
     def check(self) -> CheckResult:
         try:
             avds = get_available_android_avds()
+
             local_cert_path = Path(self.local_certificate_path)
             android_cert_path = Path(self.android_certificate_path)
             if not local_cert_path.exists() or not android_cert_path.exists():
@@ -276,6 +313,7 @@ class MobileAndroidBootstrapReady(Check):
                 return self.failed("Android mobile bootstrap setup is not complete")
 
             missing_avds = []
+            unsupported_avds = []
             for avd_name in avds:
                 serial = get_booted_android_serial_for_avd(avd_name)
                 started_by_check = serial is None
@@ -285,16 +323,30 @@ class MobileAndroidBootstrapReady(Check):
                 else:
                     wait_for_android_device_boot(serial)
 
-                hosts_ok = android_hosts_mapping_present(serial, self.host_alias)
+                try:
+                    adb_root_result = run_command(["adb", "-s", serial, "root"])
+                    wait_for_android_device_boot(serial)
 
-                if started_by_check:
-                    try:
-                        run_command(["adb", "-s", serial, "emu", "kill"])
-                    except (CommandErrorException, CommandNotFoundException):
-                        pass
+                    skip_reason = get_android_bootstrap_skip_reason(serial, avd_name, command_output(adb_root_result))
+                    if skip_reason is not None:
+                        unsupported_avds.append(avd_name)
+                        continue
 
-                if not hosts_ok:
-                    missing_avds.append(avd_name)
+                    hosts_ok = android_hosts_mapping_present(serial, self.host_alias)
+                    if not hosts_ok:
+                        missing_avds.append(avd_name)
+                finally:
+                    if started_by_check:
+                        try:
+                            run_command(["adb", "-s", serial, "emu", "kill"])
+                        except (CommandErrorException, CommandNotFoundException):
+                            pass
+
+            if len(unsupported_avds) == len(avds) and len(avds) > 0:
+                return self.failed(
+                    "Android mobile bootstrap setup is not complete: all available AVDs are using non-rootable "
+                    "production images; create a Google APIs or AOSP userdebug AVD"
+                )
 
             if len(missing_avds) > 0:
                 missing_names = ", ".join(missing_avds)
