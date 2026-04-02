@@ -1,9 +1,16 @@
 import json
+import tempfile
 import unittest
 from unittest import mock
 
-from daktari.checks.mobile import command_failure_summary, get_available_android_avds, get_available_ios_simulators
-from daktari.command_utils import CommandErrorException
+from daktari.check import CheckStatus
+from daktari.checks.mobile import (
+    MobileAndroidBootstrapReady,
+    command_failure_summary,
+    get_available_android_avds,
+    get_available_ios_simulators,
+)
+from daktari.command_utils import CommandErrorException, SuccessfulCommandResult
 
 
 class TestCommandFailureSummary(unittest.TestCase):
@@ -67,6 +74,93 @@ class TestMobileHelpers(unittest.TestCase):
 
         with self.assertRaisesRegex(CommandErrorException, "No Android AVDs found"):
             get_available_android_avds()
+
+
+class TestMobileAndroidBootstrapReady(unittest.TestCase):
+    def test_fails_when_all_available_avds_are_non_rootable(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            local_certificate_path = f"{temp_dir}/local.pem"
+            android_certificate_path = f"{temp_dir}/android.pem"
+            with open(local_certificate_path, "wb") as local_cert_file:
+                local_cert_file.write(b"same")
+            with open(android_certificate_path, "wb") as android_cert_file:
+                android_cert_file.write(b"same")
+
+            check = MobileAndroidBootstrapReady(
+                local_certificate_path,
+                android_certificate_path,
+                "local.example.test",
+            )
+
+            with (
+                mock.patch(
+                    "daktari.checks.mobile.get_available_android_avds",
+                    return_value=["Medium_Phone_API_35"],
+                ),
+                mock.patch(
+                    "daktari.checks.mobile.get_booted_android_serial_for_avd",
+                    return_value="emulator-5554",
+                ),
+                mock.patch(
+                    "daktari.checks.mobile.run_command",
+                    return_value=SuccessfulCommandResult(
+                        stdout="adbd cannot run as root in production builds\n",
+                        stderr="",
+                    ),
+                ),
+                mock.patch("daktari.checks.mobile.wait_for_android_device_boot"),
+                mock.patch(
+                    "daktari.checks.mobile.get_android_bootstrap_skip_reason",
+                    return_value="Medium_Phone_API_35 is running a non-rootable production image",
+                ),
+            ):
+                result = check.check()
+
+        self.assertEqual(CheckStatus.FAIL, result.status)
+        self.assertIn("all available AVDs are using non-rootable production images", result.summary)
+
+    def test_ignores_non_rootable_avds_when_supported_avds_are_bootstrapped(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            local_certificate_path = f"{temp_dir}/local.pem"
+            android_certificate_path = f"{temp_dir}/android.pem"
+            with open(local_certificate_path, "wb") as local_cert_file:
+                local_cert_file.write(b"same")
+            with open(android_certificate_path, "wb") as android_cert_file:
+                android_cert_file.write(b"same")
+
+            check = MobileAndroidBootstrapReady(
+                local_certificate_path,
+                android_certificate_path,
+                "local.example.test",
+            )
+
+            with (
+                mock.patch(
+                    "daktari.checks.mobile.get_available_android_avds",
+                    return_value=["Pixel_8_API_35", "Medium_Phone_API_35"],
+                ),
+                mock.patch(
+                    "daktari.checks.mobile.get_booted_android_serial_for_avd",
+                    return_value="emulator-5554",
+                ) as mock_get_serial,
+                mock.patch(
+                    "daktari.checks.mobile.run_command",
+                    return_value=SuccessfulCommandResult(stdout="restarting adbd as root\n", stderr=""),
+                ),
+                mock.patch("daktari.checks.mobile.wait_for_android_device_boot"),
+                mock.patch(
+                    "daktari.checks.mobile.get_android_bootstrap_skip_reason",
+                    side_effect=[None, "Medium_Phone_API_35 is running a non-rootable production image"],
+                ),
+                mock.patch(
+                    "daktari.checks.mobile.android_hosts_mapping_present",
+                    return_value=True,
+                ),
+            ):
+                result = check.check()
+
+        self.assertEqual(CheckStatus.PASS, result.status)
+        self.assertEqual(2, mock_get_serial.call_count)
 
 
 if __name__ == "__main__":
