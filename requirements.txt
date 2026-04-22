@@ -9,7 +9,7 @@ responses==0.26.0
 semver==3.0.4
 python-hosts==1.1.2
 PyYAML==6.0.3
-types-PyYAML==6.0.12.20250915
+types-PyYAML==6.0.12.20260408
 pyobjc-core==12.1; sys_platform == 'darwin'
 pyobjc-framework-Cocoa==12.1; sys_platform == 'darwin'
 requests-unixsocket==0.4.1
