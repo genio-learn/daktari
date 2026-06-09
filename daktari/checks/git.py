@@ -133,8 +133,6 @@ class PreCommitGitHooksInstalled(Check):
     }
 
     def check(self) -> CheckResult:
-        # Ask git for the hook path rather than assuming ".git/hooks/pre-commit": this honours
-        # core.hooksPath and resolves correctly inside worktrees (where ".git" is a file).
         hook_path = get_stdout("git rev-parse --git-path hooks/pre-commit")
         git_hooks_installed = hook_path is not None and file_contains_text(hook_path, "pre-commit.com")
         return self.verify(git_hooks_installed, "pre-commit Git hooks are <not/> installed")
