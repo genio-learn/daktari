@@ -3,8 +3,11 @@ import tempfile
 import unittest
 from unittest import mock
 
+from semver import VersionInfo
+
 from daktari.check import CheckStatus
 from daktari.checks.mobile import (
+    MaestroInstalled,
     MobileAndroidBootstrapReady,
     command_failure_summary,
     get_available_android_avds,
@@ -161,6 +164,39 @@ class TestMobileAndroidBootstrapReady(unittest.TestCase):
 
         self.assertEqual(CheckStatus.PASS, result.status)
         self.assertEqual(2, mock_get_serial.call_count)
+
+
+class TestMaestroInstalled(unittest.TestCase):
+    @mock.patch("daktari.checks.mobile.get_simple_cli_version", return_value=VersionInfo.parse("2.5.1"))
+    def test_passes_when_installed(self, _mock_version):
+        result = MaestroInstalled().check()
+
+        self.assertEqual(CheckStatus.PASS, result.status)
+
+    @mock.patch("daktari.checks.mobile.get_simple_cli_version", return_value=None)
+    def test_fails_when_not_installed(self, _mock_version):
+        result = MaestroInstalled().check()
+
+        self.assertEqual(CheckStatus.FAIL, result.status)
+        self.assertIn("not installed", result.summary)
+
+    @mock.patch("daktari.checks.mobile.get_simple_cli_version", return_value=VersionInfo.parse("2.5.1"))
+    def test_passes_when_required_version_satisfied(self, _mock_version):
+        result = MaestroInstalled(required_version=">=2.0.0").check()
+
+        self.assertEqual(CheckStatus.PASS, result.status)
+
+    @mock.patch("daktari.checks.mobile.get_simple_cli_version", return_value=VersionInfo.parse("1.9.0"))
+    def test_fails_when_required_version_not_satisfied(self, _mock_version):
+        result = MaestroInstalled(required_version=">=2.0.0").check()
+
+        self.assertEqual(CheckStatus.FAIL, result.status)
+
+    @mock.patch("daktari.checks.mobile.get_simple_cli_version", return_value=VersionInfo.parse("1.9.0"))
+    def test_warns_when_recommended_version_not_satisfied(self, _mock_version):
+        result = MaestroInstalled(recommended_version=">=2.0.0").check()
+
+        self.assertEqual(CheckStatus.PASS_WITH_WARNING, result.status)
 
 
 if __name__ == "__main__":
