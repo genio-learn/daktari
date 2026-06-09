@@ -10,6 +10,7 @@ from typing import Optional
 from daktari.check import Check, CheckResult
 from daktari.command_utils import CommandErrorException, CommandNotFoundException, run_command
 from daktari.os import OS
+from daktari.version_utils import get_simple_cli_version
 
 
 def command_failure_summary(error) -> str:
@@ -183,6 +184,25 @@ def android_hosts_mapping_present(serial, host_alias) -> bool:
         return True
     except (CommandErrorException, CommandNotFoundException):
         return False
+
+
+class MaestroInstalled(Check):
+    name = "maestro.installed"
+
+    suggestions = {
+        OS.OS_X: '<cmd>curl -Ls "https://get.maestro.mobile.dev" | bash</cmd>',
+        OS.GENERIC: 'Install Maestro:\n<cmd>curl -Ls "https://get.maestro.mobile.dev" | bash</cmd>',
+    }
+
+    def __init__(self, required_version: Optional[str] = None, recommended_version: Optional[str] = None):
+        self.required_version = required_version
+        self.recommended_version = recommended_version
+
+    def check(self) -> CheckResult:
+        installed_version = get_simple_cli_version("maestro")
+        return self.validate_semver_expression(
+            "maestro", installed_version, self.required_version, self.recommended_version
+        )
 
 
 class MobileIosPrerequisitesReady(Check):
