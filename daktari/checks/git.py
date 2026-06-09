@@ -133,7 +133,8 @@ class PreCommitGitHooksInstalled(Check):
     }
 
     def check(self) -> CheckResult:
-        git_hooks_installed = file_contains_text(".git/hooks/pre-commit", "pre-commit.com")
+        hook_path = get_stdout("git rev-parse --git-path hooks/pre-commit")
+        git_hooks_installed = hook_path is not None and file_contains_text(hook_path, "pre-commit.com")
         return self.verify(git_hooks_installed, "pre-commit Git hooks are <not/> installed")
 
 
