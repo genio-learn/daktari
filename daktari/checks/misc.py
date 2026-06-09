@@ -1,6 +1,6 @@
 import logging
 from os.path import expanduser
-from typing import Dict, Optional
+from typing import Dict, Optional, Set
 
 from python_hosts import Hosts
 
@@ -189,9 +189,10 @@ class Md5SumInstalled(Check):
 class HostAliasesConfigured(Check):
     name = "hostAliases.configured"
 
-    def __init__(self, required_aliases: Dict[str, str]):
+    def __init__(self, required_aliases: Dict[str, str], hosts_path: Optional[str] = None):
         self.required_aliases = required_aliases
-        hosts_path = Hosts.determine_hosts_path()
+        self.hosts_path = hosts_path
+        hosts_path = hosts_path or Hosts.determine_hosts_path()
 
         aliases_by_addr: Dict[str, list[str]] = {}
 
@@ -209,15 +210,18 @@ class HostAliasesConfigured(Check):
         self.suggestions = {OS.GENERIC: suggestion_text}
 
     def check(self) -> CheckResult:
-        hosts = Hosts()
+        hosts = Hosts(path=self.hosts_path)
         entries = [e for e in hosts.entries if e.entry_type in ("ipv4", "ipv6")]
-        entries_dict = {}
+        # A hostname can legitimately map to several addresses (e.g. dual-stack
+        # localhost -> both 127.0.0.1 and ::1), so collect all addresses per name
+        # rather than letting the last entry in file order win.
+        entries_dict: Dict[str, Set[str]] = {}
         for entry in entries:
             for name in entry.names:
-                entries_dict[name] = entry.address
+                entries_dict.setdefault(name, set()).add(entry.address)
         logging.debug(f"Hosts file entries: {entries_dict}")
         for name, address in self.required_aliases.items():
-            if entries_dict.get(name) != address:
+            if address not in entries_dict.get(name, set()):
                 return self.failed(f"{hosts.path} alias {name} -> {address} not present")
 
         return self.passed(f"{hosts.path} aliases present")
