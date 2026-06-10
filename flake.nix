@@ -9,7 +9,6 @@
   outputs =
     { self, nixpkgs, flake-utils }:
     let
-      # Read from the file bumpversion already rewrites; no version to hand-sync.
       version = (builtins.fromTOML (builtins.readFile ./pyproject.toml)).project.version;
 
       mkDaktari =
