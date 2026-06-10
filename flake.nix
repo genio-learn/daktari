@@ -9,9 +9,7 @@
   outputs =
     { self, nixpkgs, flake-utils }:
     let
-      # Single source of truth: read the version from the same file the
-      # automated release (bumpversion) rewrites. There is no second place to
-      # update, so the flake's version always matches the source it builds.
+      # Read from the file bumpversion already rewrites; no version to hand-sync.
       version = (builtins.fromTOML (builtins.readFile ./pyproject.toml)).project.version;
 
       mkDaktari =
@@ -25,14 +23,12 @@
           inherit version;
           pyproject = true;
 
-          # Use the flake's own source tree. No fetchFromGitHub and no src hash
-          # to maintain - the consumer's flake.lock pins the revision for us.
+          # No src hash to maintain; the consumer's flake.lock pins the revision.
           src = self;
 
           build-system = [ py.setuptools ];
 
-          # requirements.txt pins exact versions (==); use nixpkgs' versions
-          # instead of trying to match those pins.
+          # Use nixpkgs' versions rather than the == pins in requirements.txt.
           pythonRelaxDeps = true;
 
           dependencies =
@@ -62,9 +58,7 @@
               pyobjc-framework-Cocoa
             ];
 
-          # Tests are colocated with the source and expect to run with the
-          # daktari/ working directory (see CLAUDE.md); they are not part of
-          # the packaged build. Validate the install via an import instead.
+          # Tests need the daktari/ working directory; not run as part of packaging.
           doCheck = false;
           pythonImportsCheck = [ "daktari" ];
 
@@ -89,8 +83,6 @@
       }
     )
     // {
-      # System-independent overlay so the genio flake can pull daktari in as
-      # `pkgs.daktari` after adding this flake as an input.
       overlays.default = final: _prev: {
         daktari = mkDaktari final;
       };
