@@ -37,7 +37,6 @@
               pyfiglet
               importlib-resources
               packaging
-              setuptools
               requests
               responses
               semver
@@ -63,6 +62,7 @@
           meta = {
             description = "Assist in setting up and maintaining developer environments";
             homepage = "https://github.com/genio-learn/daktari";
+            changelog = "https://github.com/genio-learn/daktari/releases/tag/v${version}";
             license = lib.licenses.mit;
             mainProgram = "daktari";
           };
