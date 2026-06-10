@@ -54,7 +54,6 @@
               pyobjc-framework-Cocoa
             ];
 
-          # Tests need the daktari/ working directory; not run as part of packaging.
           doCheck = false;
           pythonImportsCheck = [ "daktari" ];
 
