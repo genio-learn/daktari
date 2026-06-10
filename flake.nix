@@ -22,7 +22,6 @@
           inherit version;
           pyproject = true;
 
-          # No src hash to maintain; the consumer's flake.lock pins the revision.
           src = self;
 
           build-system = [ py.setuptools ];
