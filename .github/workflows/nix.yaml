@@ -8,7 +8,7 @@ jobs:
   flake:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v6
       - uses: cachix/install-nix-action@v30
         with:
           extra_nix_config: |
