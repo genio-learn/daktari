@@ -26,7 +26,6 @@
 
           build-system = [ py.setuptools ];
 
-          # Use nixpkgs' versions rather than the == pins in requirements.txt.
           pythonRelaxDeps = true;
 
           dependencies =
