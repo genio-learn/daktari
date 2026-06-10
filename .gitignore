@@ -148,3 +148,7 @@ cython_debug/
 .direnv/
 
 .DS_Store
+
+# Nix build symlinks
+result
+result-*

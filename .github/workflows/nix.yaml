@@ -1,0 +1,21 @@
+name: Nix flake
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  flake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cachix/install-nix-action@v30
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Check flake
+        run: nix flake check --print-build-logs
+      - name: Build daktari
+        run: nix build .#daktari --print-build-logs
+      - name: Run daktari against CI config
+        run: ./result/bin/daktari --debug --config .ci-config.py
