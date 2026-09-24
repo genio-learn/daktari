@@ -6,7 +6,7 @@ packaging==26.3
 setuptools==84.0.0
 requests==2.34.2
 responses==0.26.3
-semver==3.0.4
+semver==3.1.0
 python-hosts==1.1.2
 PyYAML==6.0.3
 types-PyYAML==6.0.12.20260906
