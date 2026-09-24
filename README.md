@@ -7,7 +7,7 @@ In the root of the project repository, create a `.daktari.py` configuration file
 ```python
 from daktari.checks.git import *
 
-version = "0.0.355"
+version = "0.0.356"
 title = "My Project"
 
 checks = [
