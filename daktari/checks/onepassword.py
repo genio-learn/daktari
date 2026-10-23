@@ -1,6 +1,7 @@
 import grp
 import json
 import os
+import shutil
 from stat import S_IMODE, S_ISGID
 from typing import Optional
 
@@ -74,7 +75,10 @@ class OnePasswordCliOwnedByCorrectGroup(Check):
     def __init__(self):
         self.suggestions = {
             OS.UBUNTU: """
-            Ensure the onepassword-cli group exists:
+            The 1Password desktop app only integrates with an op that is setgid to the onepassword-cli group.
+            With Nix, install the 1Password CLI apt package so /usr/bin/op is used instead of the Nix one:
+            https://developer.1password.com/docs/cli/get-started/#install
+            With asdf, ensure the onepassword-cli group exists:
             <cmd>sudo groupadd -f onepassword-cli</cmd>
             Then update the group ownership and set group id when executing:
             <cmd>sudo chgrp onepassword-cli $(asdf which op) && sudo chmod g+s $(asdf which op)</cmd>
@@ -82,7 +86,7 @@ class OnePasswordCliOwnedByCorrectGroup(Check):
         }
 
     def check(self) -> CheckResult:
-        op_path = get_stdout(["sh", "-c", "asdf which op"])
+        op_path = find_op_path()
         if op_path is None:
             return self.failed("op not found")
 
@@ -103,3 +107,10 @@ def account_exists(path: str, account_shorthand: str) -> bool:
     with open(path) as f:
         config = json.load(f)
     return any(account.get("shorthand") == account_shorthand for account in config.get("accounts", []))
+
+
+def find_op_path() -> Optional[str]:
+    op_path = shutil.which("op")
+    if op_path is not None and "/.asdf/shims/" in op_path:
+        return get_stdout(["sh", "-c", "asdf which op"])
+    return op_path
