@@ -8,10 +8,6 @@ from daktari.os import OS
 class NixInstalled(Check):
     name = "nix.installed"
     suggestions = {
-        OS.OS_X: """
-            Install Determinate Nix by downloading and running
-            https://install.determinate.systems/determinate-pkg/stable/Universal, then open a new shell
-            """,
         OS.GENERIC: """
             Install Determinate Nix, then open a new shell:
             <cmd>curl -fsSL https://install.determinate.systems/nix | sh -s -- install</cmd>
