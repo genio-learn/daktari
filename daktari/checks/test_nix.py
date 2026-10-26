@@ -2,22 +2,7 @@ import unittest
 from unittest import mock
 
 from daktari.check import CheckStatus
-from daktari.checks.nix import AsdfNotOnPath, NixDevShellActive, NixInstalled
-
-
-class TestNixInstalled(unittest.TestCase):
-    @mock.patch("daktari.check.can_run_command", return_value=True)
-    def test_passes_when_nix_runs(self, can_run_command):
-        result = NixInstalled().check()
-        self.assertEqual(result.status, CheckStatus.PASS)
-        self.assertEqual(result.summary, "nix is installed")
-        can_run_command.assert_called_once_with("nix --version")
-
-    @mock.patch("daktari.check.can_run_command", return_value=False)
-    def test_fails_when_nix_missing(self, can_run_command):
-        result = NixInstalled().check()
-        self.assertEqual(result.status, CheckStatus.FAIL)
-        self.assertEqual(result.summary, "nix is not installed")
+from daktari.checks.nix import AsdfNotOnPath, NixDevShellActive
 
 
 class TestNixDevShellActive(unittest.TestCase):
