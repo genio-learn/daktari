@@ -15,10 +15,13 @@ jobs:
         uses: actions/setup-python@v7.0.0
         with:
           python-version: '3.10.10'
-      - name: Bump version and push tag
-        uses: jasonamyers/github-bumpversion-action@v1.0.5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # The bumpversion docker action's image floated to Python 3.15, which bumpversion doesn't support
+      - name: Bump version and tag
+        run: |
+          python -m pip install --no-cache-dir bump2version==1.0.1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          bump2version patch
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
