@@ -31,6 +31,14 @@ OpenJDK 64-Bit Server VM AdoptOpenJDK (build 11.0.9+11, mixed mode)
         version = parse_java_version_output(version_output)
         self.assertEqual(version, VersionInfo(11, 0, 9))
 
+    def test_parse_java_four_part_version(self):
+        version_output = """openjdk version "21.0.12.1" 2026-08-18 LTS
+OpenJDK Runtime Environment Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS, mixed mode, sharing)
+"""
+        version = parse_java_version_output(version_output)
+        self.assertEqual(version, VersionInfo(21))
+
     def test_parse_java_unknown_format_version(self):
         version_output = 'openjdk version "a.b.c"'
         version = parse_java_version_output(version_output)

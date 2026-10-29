@@ -11,7 +11,7 @@ from daktari.os import OS
 java_version_pattern = re.compile('^.*version "(.*?)".*$', re.MULTILINE)
 javac_version_pattern = re.compile("^javac (.*)$", re.MULTILINE)
 
-one_dot_pattern = re.compile("1\\.([0-9]+)")
+one_dot_pattern = re.compile("^1\\.([0-9]+)")
 other_pattern = re.compile("([0-9]+)")
 
 
